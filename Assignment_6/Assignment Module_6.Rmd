@@ -1,0 +1,139 @@
+---
+title: "Assignment Module_6"
+author: "Nemin Dholakia"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A transportation problem, its duality and economics interpretation:
+
+Heart Start produces automated external defibrillators (AEDs) in each of two different plants (A and B). The unit production costs and monthly production capacity of the two plants are indicated in the table below. The AEDs are sold through three wholesalers. The shipping cost from each plant to the warehouse of each wholesaler along with the monthly demand from each wholesaler are also indicated in the table. How many AEDs should be produced in each plant, and how should they be distributed to each of the three wholesaler warehouses so as to minimize the combined cost of production and shipping? 
+
+```{r}
+tab <- matrix(c(22,14,30,600,100 ,
+16,20,24,625,120,
+80,60,70,"-","-" ), ncol=5, byrow=TRUE)
+colnames(tab) <- c("Warehouse 1", "Warehouse 2", "Warehouse 3","Production cost","Production Capacity")
+rownames(tab) <- c("Plant A", "Plant B","Monthly Demand")
+tab <- as.table(tab)
+tab
+```
+The above transportation problem can be formulated in the LP format as below:
+
+$$ \text{Min} \hspace{.2cm} TC = 22 x_{11} +14 x_{12} +30 x_{13}$$
+$$\hspace{2cm}+16 x_{21}+20 x_{22}+ 24 x_{23}$$
+$$\hspace{2cm}+80 x_{31}+ 60 x_{32}+ 70 x_{33}$$
+Subject to,
+
+Supply constraints
+
+$$x_{11} + x_{12} + x_{13}\le 100$$
+$$x_{21} + x_{22} + x_{23}\le 120$$
+Demand Constraints
+
+$$x_{11} +x_{21}\ge 80$$
+$$x_{12} +x_{22}\ge 60$$
+$$x_{13} +x_{23}\ge 70$$
+Non-Negativity of the variables
+
+$$x_{ij}\ge 0$$ \text{where}$$ i= 1,2,3$$ \text{and}$$j= 1,2,3$$
+```{r}
+library(lpSolve)
+
+# Set up cost matrix
+
+costs <- matrix(c(622,614,630,0,
+641,645,649,0), ncol = 4,byrow = TRUE)
+
+# Set Plant names
+
+colnames(costs) <- c("Warehouse 1", "Warehouse 2","Warehouse 3","Dummy")
+rownames(costs) <- c("Plant A", "Plant B")
+costs
+```
+
+#Set up constraint signs and right-hand sides (supply side)
+
+```{r}
+row.signs <- rep("<=", 2)
+row.rhs <- c(100,120)
+```
+
+#Demand (sinks) side constraints
+
+```{r}
+col.signs <- rep(">=", 4)
+col.rhs <- c(80,60,70,10)
+```
+
+#Run
+
+```{r}
+lptrans <- lp.transport(costs, "min", row.signs, row.rhs, col.signs, col.rhs)
+```
+
+#Values of all 8 variables
+
+```{r}
+lptrans$solution
+```
+
+#Value of the objective function
+
+```{r}
+lptrans$objval
+```
+
+#Getting the constraints value
+
+```{r}
+lptrans$solution
+```
+
+80 AEDs in Plant 2 - Warehouse1, 60 AEDs in Plant 1 - Warehouse2,40 AEDs in Plant 1 - Warehouse3, 30 AEDs in Plant 2 - Warehouse3 should be produced in each plant and then distributed to each of the three wholesaler warehouses in order to minimize the overall cost of production as well as shipping.
+
+#Formulate the dual of the above transportation problem
+
+Since the primal was to minimize the transportation cost the dual of it would be to maximize the value added(VA).
+
+$$ \text{Maximize VA} \hspace{.2cm}= 100 P_{1} +120 P_{2} -80W_{1}- 60W_{2}- 70W_{3}$$
+Subject to the following constraints
+
+
+$$ \ Total \hspace{.2cm} Profit \hspace{.2cm} Constraints$$
+
+$$MR_{1} - MC_{1} \ge = 622$$
+$$MR_{2} - MC_{1} \ge = 614$$
+$$MR_{3} - MC_{1} \ge = 630$$
+$$MR_{1} - MC_{2} \ge = 641$$
+$$MR_{2} - MC_{2} \ge = 645$$
+$$MR_{3} - MC{2} \ge = 649$$
+$$Where\hspace{.2cm} MR_{1} = Marginal\hspace{.2cm} Revenue\hspace{.2cm}from\hspace{.2cm} Warehouse 1$$
+$$MR_{2} = Marginal\hspace{.2cm}Revenue\hspace{.2cm} from\hspace{.2cm}Warehouse 2$$
+$$MR_{3} = Marginal\hspace{.2cm} Revenue\hspace{.2cm} from\hspace{.2cm}Warehouse 3$$
+$$MC_{1} = Marginal\hspace{.2cm} Cost\hspace{.2cm} from\hspace{.2cm}Plant 1$$
+$$MC_{2} = Marginal\hspace{.2cm} Cost\hspace{.2cm} from\hspace{.2cm}Plant 2$$
+
+
+
+
+$$Economic\hspace{.2cm} Interpretation\hspace{.2cm} of\hspace{.2cm} the\hspace{.2cm} dual$$
+$$MR_{1} >= MC_{1} + 622$$
+$$MR_{2} >= MC_{1} + 614$$
+$$MR_{3} >= MC_{1} + 630$$
+$$MR_{1} >= MC_{2} + 641$$
+$$MR_{2} >= MC_{2} + 645$$
+$$MR_{3} >= MC_{2} + 649$$
+The above constraints framed under the economic interpretation of the dual follows the universal rule of profit maximization i.e. MR >= MC where “MR” is the Marginal Revenue and “MC” is the Marginal Cost.
+$$MR_{1} >= MC_{1} + 621\hspace{.4cm}i.e.\hspace{.4cm} MR_{1} >= MC_{1}$$
+Marginal Revenue i.e. The revenue generated for each additional unit sold relative to Marginal Cost (MC) i.e. The change in cost at Plant 1 by inducing an increase in the supply function should be greater than or equal to the revenue generated for each additional unit distributed to Warehouse 1.
+
+
+This is useful for businesses to balance their production output with their costs to maximize profit.
+
