@@ -1,0 +1,38 @@
+---
+title: "Assignment Module_9"
+author: "Nemin Dholakia"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Set Working Directory
+getwd()
+setwd("C:/MSBA/QMM/Assignment Module_9")
+
+```
+
+
+```{r}
+library(lpSolveAPI)
+employmentmax <- read.lp("employmentmax.lp")
+employmentmax
+```
+
+```{r}
+solve(employmentmax)
+```
+```{r}
+get.objective(employmentmax)
+```
+```{r}
+get.variables(employmentmax)
+```
+The objective function is 225. X1 = 0, X2 = 0, X3 = 15, Y1p = 25, Y1m = 0, Y2m = 0.
+This implies that since y1 = 0 and y2 = 0, so the first and second goals are fully satisfied.
