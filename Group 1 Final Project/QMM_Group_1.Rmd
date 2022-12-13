@@ -1,0 +1,44 @@
+---
+title: "QMM Final Assignment"
+author: "Group 1"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(lpSolveAPI)
+group_project <- read.lp("C:/Users/sidda/Desktop/KSU_Fall/QMM/qmm_final.lp")
+group_project
+
+
+
+
+```
+```{r}
+solve(group_project)
+```
+Here 0 indicates that it is possible to formulate the model and find solution. In this problem it means that we can allocate Students into 4 different groups by satifying both objective function and constraints.
+```{r}
+get.objective(group_project)
+```
+It is the maximum value of objective function considering the constraints.
+
+```{r}
+get.variables(group_project)
+```
+Following are the groups to be formed to maximize the chance of success for each group based on above results:
+\newline
+Group 1 - 6,10,11
+\newline
+Group 2 - 4,7,12
+\newline
+Group 3 - 3,5,9
+\newline
+Group 4 - 1,2,8
+
+
